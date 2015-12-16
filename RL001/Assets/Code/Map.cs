@@ -332,5 +332,19 @@ namespace Code
         {
             return tilePointLists[type];
         }
+
+        public void Clear()
+        {
+            for(int i = 0; i < sizeX; ++i)
+            {
+                for(int j = 0; j < sizeY; ++j)
+                {
+                    this[i, j].TileType = TileType.Empty;
+                    this[i, j].MaterialType = MaterialType.Dirt;
+                }
+            }
+
+            rooms.Clear();
+        }
     }
 }

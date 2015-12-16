@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Code
 {
     [ExecuteInEditMode]
-    [CreateAssetMenu]
+    [CreateAssetMenu(fileName = "Assets/Map Generators/MapGenerator(New)")]
     [Serializable]
     public class MapGenerator : ScriptableObject
     {
@@ -259,6 +259,11 @@ namespace Code
                     }
                 }
             }
+        }
+
+        public void ClearMap()
+        {
+            MasterMap.Clear();
         }
 
         public void SaveMap()
