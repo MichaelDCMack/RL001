@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using HutongGames.Utility;
 
 namespace Code
 {
-    public class MapGenerator : MonoBehaviour
+    [ExecuteInEditMode]
+    [CreateAssetMenu]
+    [Serializable]
+    public class MapGenerator : ScriptableObject
     {
         public enum GenerateMode
         {
@@ -29,7 +31,7 @@ namespace Code
         }
 
         // Init
-        public void Start()
+        public void Init()
         {
             if(seedRandomNumberGenerator)
             {
