@@ -224,38 +224,40 @@ namespace Code
         public void PostProcessMap()
         {
             //first pass
-            for(int i = 0; i < MasterMap.sizeX; ++i)
-            {                
-                for(int j = 0; j < MasterMap.sizeY; ++j)
-                {
-                    if(MasterMap[i, j].TileType == TileType.Join)
+            for(int y = 0; y < MasterMap.sizeY; ++y)
+            {
+                for(int x = 0; x < MasterMap.sizeX; ++x)
+                {                
+                
+                    if(MasterMap[x, y].TileType == TileType.Join)
                     {
-                        MasterMap[i, j].TileType = TileType.Floor;
+                        MasterMap[x, y].TileType = TileType.Floor;
                     }
-                    if(MasterMap[i, j].TileType == TileType.Floor)
+                    if(MasterMap[x, y].TileType == TileType.Floor)
                     {
-                        if(MasterMap.PointIsMapEdge(new Point(i, j)) || MasterMap.CardinalNeighborCount(new Point(i, j), TileType.Empty, false) > 0)
+                        if(MasterMap.PointIsMapEdge(new Point(x, y)) || MasterMap.CardinalNeighborCount(new Point(x, y), TileType.Empty, false) > 0)
                         {
-                            MasterMap[i, j].TileType = TileType.Solid;
+                            MasterMap[x, y].TileType = TileType.Solid;
                         }
                     }
                 }
             }
 
             //second pass
-            for(int i = 0; i < MasterMap.sizeX; ++i)
+            for(int y = 0; y < MasterMap.sizeY; ++y)
             {
-                for(int j = 0; j < MasterMap.sizeY; ++j)
+                for(int x = 0; x < MasterMap.sizeX; ++x)
                 {
-                    if(MasterMap[i, j].TileType == TileType.Solid &&
-                       MasterMap.CardinalNeighborCount(new Point(i, j), TileType.Floor, true) == 0)
+                
+                    if(MasterMap[x, y].TileType == TileType.Solid &&
+                       MasterMap.CardinalNeighborCount(new Point(x, y), TileType.Floor, true) == 0)
                     {
-                        MasterMap[i, j].TileType = TileType.Empty;
+                        MasterMap[x, y].TileType = TileType.Empty;
                     }
-                    if(MasterMap[i, j].TileType == TileType.Empty &&
-                       MasterMap.CardinalNeighborCount(new Point(i, j), TileType.Floor, true) > 0)
+                    if(MasterMap[x, y].TileType == TileType.Empty &&
+                       MasterMap.CardinalNeighborCount(new Point(x, y), TileType.Floor, true) > 0)
                     {
-                        MasterMap[i, j].TileType = TileType.Solid;
+                        MasterMap[x, y].TileType = TileType.Solid;
                     }
                 }
             }

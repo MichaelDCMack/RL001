@@ -61,20 +61,19 @@ namespace Code
         void cloneTiles()
         {
             tiles = new GameObject[sizeX * sizeY];
-
-            for(int i = 0; i < sizeX; i++)
+            for(int y = 0; y < sizeY; y++)
             {
-                for(int j = 0; j < sizeY; j++)
+                for(int x = 0; x < sizeX; x++)
                 {
                     GameObject go = Instantiate(
                                         tilePrefab, 
-                                        new Vector3(i - sizeX / 2.0f + 0.5f, j - sizeY / 2.0f + 0.5f),
+                                        new Vector3(x - sizeX / 2.0f + 0.5f, y - sizeY / 2.0f + 0.5f),
                                         Quaternion.identity) as GameObject;
 
                     go.transform.SetParent(transform);
                     go.hideFlags = HideFlags.DontSaveInEditor;
 
-                    tiles[i * sizeY + j] = go;
+                    tiles[y * sizeX + x] = go;
                 }
             }
 

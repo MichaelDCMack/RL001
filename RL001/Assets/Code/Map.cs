@@ -32,8 +32,8 @@ namespace Code
 
         public Tile this[int x, int y]
         {
-            get{ return tiles[x * sizeY + y]; }
-            set{ tiles[x * sizeY + y] = value; }
+            get{ return tiles[y * sizeX + x]; }
+            set{ tiles[y * sizeX + x] = value; }
         }
 
         // Init
@@ -287,12 +287,12 @@ namespace Code
             int newSizeX = sizeY;
             int newSizeY = sizeX;
             Tile[] newTiles = new Tile[newSizeX * newSizeY];
-        
-            for(int i = 0; i < newSizeX; ++i)
+
+            for(int y = 0; y < newSizeY; ++y)
             {
-                for(int j = 0; j < newSizeY; ++j)
+                for(int x = 0; x < newSizeX; ++x)
                 {
-                    newTiles[i * newSizeY + j] = this[(sizeX - 1) - j, i];
+                    newTiles[y * newSizeX + x] = this[(sizeX - 1) - y, x];
                 }
             }
         
@@ -303,26 +303,26 @@ namespace Code
 
         public void Mirror()
         {
-            for(int i = 0; i < sizeX / 2; ++i)
+            for(int y = 0; y < sizeY; ++y)
             {
-                for(int j = 0; j < sizeY; ++j)
+                for(int x = 0; x < sizeX / 2; ++x)
                 {
-                    Tile temp = this[i, j];
-                    this[i, j] = this[(sizeX - 1) - i, j];
-                    this[(sizeX - 1) - i, j] = temp;
+                    Tile temp = this[x, y];
+                    this[x, y] = this[(sizeX - 1) - x, y];
+                    this[(sizeX - 1) - x, y] = temp;
                 }
             }
         }
 
         public void FindLinkPoints()
         {
-            for(int i = 0; i < sizeX; ++i)
+            for(int y = 0; y < sizeY; ++y)
             {
-                for(int j = 0; j < sizeY; ++j)
+                for(int x = 0; x < sizeX; ++x)
                 {
-                    if(TileIsJoinTile(this[i, j]))
+                    if(TileIsJoinTile(this[x, y]))
                     {
-                        tilePointLists[this[i, j].TileType].Add(new Point(i, j));
+                        tilePointLists[this[x, y].TileType].Add(new Point(x, y));
                     }
                 }
             }
@@ -335,12 +335,13 @@ namespace Code
 
         public void Clear()
         {
-            for(int i = 0; i < sizeX; ++i)
+            for(int y = 0; y < sizeY; ++y)
             {
-                for(int j = 0; j < sizeY; ++j)
+                for(int x = 0; x < sizeX; ++x)
                 {
-                    this[i, j].TileType = TileType.Empty;
-                    this[i, j].MaterialType = MaterialType.Dirt;
+                
+                    this[x, y].TileType = TileType.Empty;
+                    this[x, y].MaterialType = MaterialType.Dirt;
                 }
             }
 
