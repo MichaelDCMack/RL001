@@ -6,15 +6,9 @@ namespace Code
     public class MapRenderer : MonoBehaviour
     {
         public GameObject tilePrefab;
+        public SpriteMapper spriteMapper;
         public int sizeX;
         public int sizeY;
-
-        public Sprite solid;
-        public Sprite floor;
-        public Sprite join;
-        public Sprite empty;
-        public Sprite liquid;
-        public Sprite error;
 
         int oldSizeX;
         int oldSizeY;
@@ -129,30 +123,11 @@ namespace Code
                     continue;
                 }
 
-                TileType tileType = Map[(int)x, (int)y].TileType;
-
-                switch(tileType)
+                if(spriteMapper != null)
                 {
-                    case TileType.Empty:
-                        sr.sprite = empty;
-                        break;
-                    case TileType.Floor:
-                        sr.sprite = floor;
-                        break;
-                    case TileType.Solid:
-                        sr.sprite = solid;
-                        break;
-                    case TileType.Join:
-                        sr.sprite = join;
-                        break;
-                    case TileType.Liquid:
-                        sr.sprite = liquid;
-                        break;
-                    default:
-                        sr.sprite = error;
-                        break;
+                    sr.sprite = spriteMapper.MapToSprite(Map[(int)x, (int)y]);
                 }
-            }	
+            }
         }
 
         public void BuildRandomJoinTile()

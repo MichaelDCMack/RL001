@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Code
 {
     [ExecuteInEditMode]
-    [CreateAssetMenu(fileName = "Assets/Map Generators/MapGenerator(New)")]
+    [CreateAssetMenu(fileName = "Assets/Scriptable Objects/Map Generators/MapGenerator(New)")]
     [Serializable]
     public class MapGenerator : ScriptableObject
     {
