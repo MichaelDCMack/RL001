@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 
 namespace Code
 {
-    [Serializable]
     public class Map
     {
         public static char[] DebugGlyphs = new []
@@ -22,12 +20,9 @@ namespace Code
 
         public List<MapType> mapTypes;
 
-        [NonSerialized]
         public Dictionary<TileType, List<Point>> tilePointLists;
-        [NonSerialized]
         public List<Room> rooms;
 
-        [SerializeField]
         Tile[] tiles;
 
         public Tile this[int x, int y]
@@ -97,32 +92,6 @@ namespace Code
         }
 
         // Public
-        public void WriteGlyphs(string filePath)
-        {
-            StreamWriter sw = new StreamWriter(filePath, false);
-            sw.WriteLine(sizeX);
-            sw.WriteLine(sizeY);
-        
-            for(int y = 0; y < sizeY; ++y)
-            {
-                string output = "";
-
-                for(int x = 0; x < sizeX; ++x)
-                {
-                    output += DebugGlyphs[(int)this[x, y].TileType];
-                }
-
-                output += "\n";
-
-                sw.Write(output);
-            }
-        
-            sw.Flush();
-            sw.Close();
-        
-            Debug.Log("Current state of map (in glyphs) written to : " + filePath);
-        }
-
         public void ReadGlyphs(string text)
         {
             StringReader sr = new StringReader(text);
@@ -145,6 +114,27 @@ namespace Code
             }
         
             sr.Close();
+        }
+
+        public string WriteGlyphs()
+        {
+            StringWriter sw = new StringWriter();
+
+            sw.WriteLine(sizeX);
+            sw.WriteLine(sizeY);
+
+            for(int y = 0; y < sizeY; ++y)
+            {
+                for(int x = 0; x < sizeX; ++x)
+                {
+                    sw.Write(DebugGlyphs[(int)this[x, y].TileType]);
+                }
+                sw.Write('\n');
+            }
+
+            sw.Flush();
+
+            return sw.ToString();
         }
 
         public bool CheckStamp(Map subMap, Point offset)
@@ -234,7 +224,10 @@ namespace Code
             {
                 for(int x = 0; x < map.sizeX; ++x)
                 {
-                    this[x + offset.x, y + offset.y].Set(CombineTiles(this[x + offset.x, y + offset.y], map[x, y]));
+                    if(x < sizeX && y < sizeY)
+                    {
+                        this[x + offset.x, y + offset.y].Set(CombineTiles(this[x + offset.x, y + offset.y], map[x, y]));
+                    }
                 }
             }
         }
@@ -332,6 +325,23 @@ namespace Code
         {
             return tilePointLists[type];
         }
+
+        //        public void BuildRoomForJoins()
+        //        {
+        //            Room newRoom = new Room();
+        //            newRoom.Anchor = new Point(0, 0);
+        //            newRoom.AttachedRooms
+        //            for(int y = 0; y < sizeY; ++y)
+        //            {
+        //                for(int x = 0; x < sizeX; ++x)
+        //                {
+        //                    if(this[x, y].TileType == TileType.Join)
+        //                    {
+        //
+        //                    }
+        //                }
+        //            }
+        //        }
 
         public void Clear()
         {

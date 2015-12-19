@@ -13,16 +13,7 @@ namespace Code
         int oldSizeX;
         int oldSizeY;
 
-        //Debug Hack
-        public MapGenerator mapGenerator;
-
-        MapGenerator oldMapGenerator;
-
-        public Map Map
-        {
-            get;
-            set;
-        }
+        CurrentMap currentMap;
 
         GameObject[] tiles;
 
@@ -31,7 +22,7 @@ namespace Code
         {
             deleteTiles();
             cloneTiles();
-            InitMapGenerator();
+            currentMap = GetComponent<CurrentMap>();
         }
 
         void deleteTiles()
@@ -74,16 +65,6 @@ namespace Code
             oldSizeX = sizeX;
             oldSizeY = sizeY;
         }
-
-        void InitMapGenerator()
-        {
-            if(mapGenerator != null)
-            {
-                mapGenerator.Init();
-            }
-
-            oldMapGenerator = mapGenerator;
-        }
 	
         // Update is called once per frame
         void Update()
@@ -94,16 +75,6 @@ namespace Code
                 cloneTiles();
             }
 
-            if(mapGenerator != oldMapGenerator)
-            {
-                InitMapGenerator();
-            }
-
-            if(mapGenerator != null)
-            {
-                Map = mapGenerator.MasterMap;
-            }
-
             foreach(GameObject go in tiles)
             {
                 float x = go.transform.position.x + sizeX / 2.0f - 0.5f;
@@ -111,13 +82,13 @@ namespace Code
 
                 SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
 
-                if(x < 0 || x >= Map.sizeX)
+                if(x < 0 || x >= currentMap.map.sizeX)
                 {
                     sr.sprite = null;
                     continue;
                 }
 
-                if(y < 0 || y >= Map.sizeY)
+                if(y < 0 || y >= currentMap.map.sizeY)
                 {
                     sr.sprite = null;
                     continue;
@@ -125,49 +96,8 @@ namespace Code
 
                 if(spriteMapper != null)
                 {
-                    sr.sprite = spriteMapper.MapToSprite(Map[(int)x, (int)y]);
+                    sr.sprite = spriteMapper.MapToSprite(currentMap.map[(int)x, (int)y]);
                 }
-            }
-        }
-
-        public void BuildRandomJoinTile()
-        {
-            if(mapGenerator != null)
-            {
-                mapGenerator.BuildRandomJoinTile();
-            }
-        }
-
-        public void BuildNextRandomSubMap()
-        {   
-
-            if(mapGenerator != null)
-            {
-                mapGenerator.BuildNextRandomSubMap();
-            }
-        }
-
-        public void PostProcessMap()
-        {
-            if(mapGenerator != null)
-            {
-                mapGenerator.PostProcessMap();
-            }
-        }
-
-        public void SaveMap()
-        {
-            if(mapGenerator != null)
-            {
-                mapGenerator.SaveMap();
-            }
-        }
-
-        public void LoadMap()
-        {
-            if(mapGenerator != null)
-            {
-                mapGenerator.LoadMap();
             }
         }
     }

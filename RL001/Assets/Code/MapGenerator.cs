@@ -17,18 +17,10 @@ namespace Code
             Random
         }
 
-        public int sizeX = 100;
-        public int sizeY = 100;
         public bool seedRandomNumberGenerator;
         public int seed;
         public GenerateMode mode = GenerateMode.DepthFirst;
         public MapGeneratorData[] mapDataArray;
-
-        public Map MasterMap
-        {
-            get;
-            set;
-        }
 
         // Init
         public void Init()
@@ -44,16 +36,14 @@ namespace Code
 
             Debug.Log("Random Number Generator Seeded to " + seed);
 
-            InitMaps();
+            InitMapData();
         }
 
         #region private
 
         // Private
-        void InitMaps()
+        void InitMapData()
         {
-            MasterMap = new Map(sizeX, sizeY);
-
             foreach(MapGeneratorData mapData in mapDataArray)
             {
                 mapData.LoadMap();
@@ -89,16 +79,16 @@ namespace Code
             return null;
         }
 
-        bool PlaceMap(Room room, TileType[] types)
+        bool PlaceMap(Map parentMap, Room room, TileType[] types)
         {
             List<Map> randomizedMaps = GetRandomMaps();
 
             foreach(Map map in randomizedMaps)
             {
-                List<Point> matchingPoints = FindTileMatchPoints(room, map, types);
+                List<Point> matchingPoints = FindTileMatchPoints(parentMap, room, map, types);
                 foreach(Point point in matchingPoints)
                 {
-                    if(PlaceMapHelper(map, point, room))
+                    if(PlaceMapHelper(parentMap, map, point, room))
                     {
                         return true;
                     }
@@ -108,18 +98,18 @@ namespace Code
             return false;
         }
 
-        bool PlaceMapHelper(Map map, Point point, Room room)
+        bool PlaceMapHelper(Map parentMap, Map map, Point point, Room room)
         {
-            if(MasterMap.CheckStamp(map, point))
+            if(parentMap.CheckStamp(map, point))
             {
                 Room newRoom = new Room();
 
                 newRoom.Anchor = point;
                 newRoom.Map = map;
-                newRoom.ParentMap = MasterMap;
+                newRoom.ParentMap = parentMap;
 
-                MasterMap.StampMap(map, point);
-                MasterMap.rooms.Add(newRoom);
+                parentMap.StampMap(map, point);
+                parentMap.rooms.Add(newRoom);
 
                 if(room != null)
                 {
@@ -142,7 +132,7 @@ namespace Code
             return false;
         }
 
-        List<Point> FindTileMatchPoints(Room room, Map map, TileType[] types)
+        List<Point> FindTileMatchPoints(Map parentMap, Room room, Map map, TileType[] types)
         {
             List<Point> roomPoints = new List<Point>();
 
@@ -152,7 +142,7 @@ namespace Code
             }
 
             roomPoints.RemoveAll(point => 
-                MasterMap.CardinalNeighborCount(point + room.Anchor, TileType.Empty, false) == 0);
+                parentMap.CardinalNeighborCount(point + room.Anchor, TileType.Empty, false) == 0);
 
             List<Point> mapPoints = new List<Point>();
 
@@ -181,24 +171,24 @@ namespace Code
         #region public
 
         // Public
-        public void BuildRandomJoinTile()
+        public void BuildRandomJoinTile(Map parentMap)
         {
-            int x = UnityEngine.Random.Range(0, sizeX);
-            int y = UnityEngine.Random.Range(0, sizeY);
+            int x = UnityEngine.Random.Range(0, parentMap.sizeX);
+            int y = UnityEngine.Random.Range(0, parentMap.sizeY);
 
             Map map = new Map(1, 1);
 
             map[0, 0].TileType = TileType.Join;
             map.FindLinkPoints();
 
-            PlaceMapHelper(map, new Point(x, y), null);
+            PlaceMapHelper(parentMap, map, new Point(x, y), null);
 
 
         }
 
-        public void BuildNextRandomSubMap()
+        public void BuildNextRandomSubMap(Map parentMap)
         {   
-            List<Room> rooms = new List<Room>(MasterMap.rooms);
+            List<Room> rooms = new List<Room>(parentMap.rooms);
 
             switch(mode)
             {
@@ -211,9 +201,10 @@ namespace Code
                     rooms.Shuffle();
                     break;
             }
+
             foreach(Room room in rooms)
             {
-                if(PlaceMap(room, new []{ TileType.Join }))
+                if(PlaceMap(parentMap, room, new []{ TileType.Join }))
                 {
                     return;
                 }
@@ -221,58 +212,68 @@ namespace Code
         }
 
         //Rough
-        public void PostProcessMap()
+        public void PostProcessMap(Map parentMap)
         {
             //first pass
-            for(int y = 0; y < MasterMap.sizeY; ++y)
+            for(int y = 0; y < parentMap.sizeY; ++y)
             {
-                for(int x = 0; x < MasterMap.sizeX; ++x)
+                for(int x = 0; x < parentMap.sizeX; ++x)
                 {                
                 
-                    if(MasterMap[x, y].TileType == TileType.Join)
+                    if(parentMap[x, y].TileType == TileType.Join)
                     {
-                        MasterMap[x, y].TileType = TileType.Floor;
+                        parentMap[x, y].TileType = TileType.Floor;
                     }
-                    if(MasterMap[x, y].TileType == TileType.Floor)
+                    if(parentMap[x, y].TileType == TileType.Floor)
                     {
-                        if(MasterMap.PointIsMapEdge(new Point(x, y)) || MasterMap.CardinalNeighborCount(new Point(x, y), TileType.Empty, false) > 0)
+                        if(parentMap.PointIsMapEdge(new Point(x, y)) ||
+                           parentMap.CardinalNeighborCount(new Point(x, y), TileType.Empty, false) > 0)
                         {
-                            MasterMap[x, y].TileType = TileType.Solid;
+                            parentMap[x, y].TileType = TileType.Solid;
                         }
                     }
                 }
             }
 
             //second pass
-            for(int y = 0; y < MasterMap.sizeY; ++y)
+            for(int y = 0; y < parentMap.sizeY; ++y)
             {
-                for(int x = 0; x < MasterMap.sizeX; ++x)
+                for(int x = 0; x < parentMap.sizeX; ++x)
                 {
                 
-                    if(MasterMap[x, y].TileType == TileType.Solid &&
-                       MasterMap.CardinalNeighborCount(new Point(x, y), TileType.Floor, true) == 0)
+                    if(parentMap[x, y].TileType == TileType.Solid &&
+                       parentMap.CardinalNeighborCount(new Point(x, y), TileType.Floor, true) == 0)
                     {
-                        MasterMap[x, y].TileType = TileType.Empty;
+                        parentMap[x, y].TileType = TileType.Empty;
                     }
-                    if(MasterMap[x, y].TileType == TileType.Empty &&
-                       MasterMap.CardinalNeighborCount(new Point(x, y), TileType.Floor, true) > 0)
+                    if(parentMap[x, y].TileType == TileType.Empty &&
+                       parentMap.CardinalNeighborCount(new Point(x, y), TileType.Floor, true) > 0)
                     {
-                        MasterMap[x, y].TileType = TileType.Solid;
+                        parentMap[x, y].TileType = TileType.Solid;
                     }
                 }
             }
         }
 
-        public void ClearMap()
+        public void ClearMap(Map parentMap)
         {
-            MasterMap.Clear();
+            parentMap.Clear();
+            ResetUsedCounts();
         }
 
-        public void SaveMap()
+        public void ResetUsedCounts()
+        {
+            foreach(MapGeneratorData mgd in mapDataArray)
+            {
+                mgd.TimesUsed = 0;
+            }
+        }
+
+        public void SaveMap(Map parentMap)
         {
             using(StreamWriter sw = new StreamWriter("Assets/Maps/saved-masterMap-(" + seed + ").json", false))
             {
-                string json = JsonUtility.ToJson(MasterMap, true);
+                string json = JsonUtility.ToJson(parentMap, true);
 
                 sw.Write(json);
 
@@ -281,13 +282,13 @@ namespace Code
             }
         }
 
-        public void LoadMap()
+        public void LoadMap(Map parentMap)
         {
             using(StreamReader sr = new StreamReader("Assets/Maps/saved-masterMap-(" + seed + ").json"))
             {
                 string json = sr.ReadToEnd();
 
-                MasterMap = JsonUtility.FromJson<Map>(json);
+                parentMap = JsonUtility.FromJson<Map>(json);
 
                 sr.Close();
             }
