@@ -15,10 +15,6 @@ namespace Code
         MapGenerator oldGenerator;
         TextAsset oldAsset;
 
-        //this feels tacky/hacky ... for resizing in the custom editor.  Should live in the custom editor.
-        public int sizeX;
-        public int sizeY;
-
         // Use this for initialization
         void Start()
         {
@@ -33,13 +29,11 @@ namespace Code
             {
                 map = new Map();
                 map.ReadGlyphs(asset.text);
-                sizeX = map.sizeX;
-                sizeY = map.sizeY;
 
             }
             else
             {
-                map = new Map(sizeX, sizeY);
+                map = new Map(10, 10);
             }
 
             map.FindLinkPoints();

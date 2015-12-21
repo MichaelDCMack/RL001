@@ -307,6 +307,15 @@ namespace Code
             }
         }
 
+        public void BuildPatchRoom()
+        {
+            Room room = new Room();
+            room.Anchor = new Point(0, 0);
+            room.Map = this;
+            room.ParentMap = this;
+            rooms.Add(room);
+        }
+
         public void FindLinkPoints()
         {
             for(int y = 0; y < sizeY; ++y)
@@ -325,23 +334,6 @@ namespace Code
         {
             return tilePointLists[type];
         }
-
-        //        public void BuildRoomForJoins()
-        //        {
-        //            Room newRoom = new Room();
-        //            newRoom.Anchor = new Point(0, 0);
-        //            newRoom.AttachedRooms
-        //            for(int y = 0; y < sizeY; ++y)
-        //            {
-        //                for(int x = 0; x < sizeX; ++x)
-        //                {
-        //                    if(this[x, y].TileType == TileType.Join)
-        //                    {
-        //
-        //                    }
-        //                }
-        //            }
-        //        }
 
         public void Clear()
         {
