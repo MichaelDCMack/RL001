@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 
 namespace Code
 {
@@ -20,7 +21,7 @@ namespace Code
 
         public List<MapType> mapTypes;
 
-        public Dictionary<TileType, List<Point>> tilePointLists;
+        public Dictionary<TileType, List<Vector2>> tilePointLists;
         public List<Room> rooms;
 
         Tile[] tiles;
@@ -83,11 +84,11 @@ namespace Code
         // Private
         void InitTilePointLists()
         {
-            tilePointLists = new Dictionary<TileType, List<Point>>();
+            tilePointLists = new Dictionary<TileType, List<Vector2>>();
 
             for(TileType i = TileType.Error; i < TileType.NumberOfTypes; ++i)
             {
-                tilePointLists.Add(i, new List<Point>());
+                tilePointLists.Add(i, new List<Vector2>());
             }
         }
 
@@ -137,7 +138,7 @@ namespace Code
             return sw.ToString();
         }
 
-        public bool CheckStamp(Map subMap, Point offset)
+        public bool CheckStamp(Map subMap, Vector2 offset)
         {
             if(offset.x + subMap.sizeX > sizeX ||
                offset.y + subMap.sizeY > sizeY ||
@@ -156,7 +157,7 @@ namespace Code
             {
                 for(int x = 0; x < subMap.sizeX; ++x)
                 {
-                    Tile mapTile = this[x + offset.x, y + offset.y];
+                    Tile mapTile = this[x + (int)offset.x, y + (int)offset.y];
                     Tile subMapTile = subMap[x, y];
                 
                     if(!TilesCanCombine(mapTile, subMapTile))
@@ -169,7 +170,7 @@ namespace Code
             return true;
         }
 
-        public bool IdenticalAlreadyOnMap(Map subMap, Point offset)
+        public bool IdenticalAlreadyOnMap(Map subMap, Vector2 offset)
         {
             bool allEmpty = true;
 
@@ -177,7 +178,7 @@ namespace Code
             {
                 for(int x = 0; x < subMap.sizeX; ++x)
                 {
-                    TileType mapTileType = this[x + offset.x, y + offset.y].TileType;
+                    TileType mapTileType = this[x + (int)offset.x, y + (int)offset.y].TileType;
                     TileType subMapTileType = subMap[x, y].TileType;
                 
                     if(mapTileType != TileType.Empty)
@@ -218,7 +219,7 @@ namespace Code
             return t1.TileType == TileType.Empty ? t2 : t1;
         }
 
-        public void StampMap(Map map, Point offset)
+        public void StampMap(Map map, Vector2 offset)
         {
             for(int y = 0; y < map.sizeY; ++y)
             {
@@ -226,45 +227,45 @@ namespace Code
                 {
                     if(x < sizeX && y < sizeY)
                     {
-                        this[x + offset.x, y + offset.y].Set(CombineTiles(this[x + offset.x, y + offset.y], map[x, y]));
+                        this[x + (int)offset.x, y + (int)offset.y].Set(CombineTiles(this[x + (int)offset.x, y + (int)offset.y], map[x, y]));
                     }
                 }
             }
         }
 
-        public int CardinalNeighborCount(Point location, TileType type, bool interCardinal)
+        public int CardinalNeighborCount(Vector2 location, TileType type, bool interCardinal)
         {
             int count = 0;
 
-            if(location.x > 0 && this[location.x - 1, location.y].TileType == type)
+            if(location.x > 0 && this[(int)location.x - 1, (int)location.y].TileType == type)
                 ++count;
-            if(location.x + 1 < sizeX && this[location.x + 1, location.y].TileType == type)
+            if(location.x + 1 < sizeX && this[(int)location.x + 1, (int)location.y].TileType == type)
                 ++count;
-            if(location.y > 0 && this[location.x, location.y - 1].TileType == type)
+            if(location.y > 0 && this[(int)location.x, (int)location.y - 1].TileType == type)
                 ++count;
-            if(location.y + 1 < sizeY && this[location.x, location.y + 1].TileType == type)
+            if(location.y + 1 < sizeY && this[(int)location.x, (int)location.y + 1].TileType == type)
                 ++count;
 
             if(interCardinal)
             {
                 if(location.x > 0 && location.y > 0 &&
-                   this[location.x - 1, location.y - 1].TileType == type)
+                   this[(int)location.x - 1, (int)location.y - 1].TileType == type)
                     ++count;
                 if(location.x + 1 < sizeX && location.y + 1 < sizeY &&
-                   this[location.x + 1, location.y + 1].TileType == type)
+                   this[(int)location.x + 1, (int)location.y + 1].TileType == type)
                     ++count;
                 if(location.x + 1 < sizeX && location.y > 0 &&
-                   this[location.x + 1, location.y - 1].TileType == type)
+                   this[(int)location.x + 1, (int)location.y - 1].TileType == type)
                     ++count;
                 if(location.x > 0 && location.y + 1 < sizeY &&
-                   this[location.x - 1, location.y + 1].TileType == type)
+                   this[(int)location.x - 1, (int)location.y + 1].TileType == type)
                     ++count;
             }
 
             return count;
         }
 
-        public bool PointIsMapEdge(Point location)
+        public bool PointIsMapEdge(Vector2 location)
         {
             if(location.x + 1 >= sizeX || location.x <= 0 ||
                location.y + 1 >= sizeY || location.y <= 0)
@@ -310,7 +311,7 @@ namespace Code
         public void BuildPatchRoom()
         {
             Room room = new Room();
-            room.Anchor = new Point(0, 0);
+            room.Anchor = Vector2.zero;
             room.Map = this;
             room.ParentMap = this;
             rooms.Add(room);
@@ -324,13 +325,13 @@ namespace Code
                 {
                     if(TileIsJoinTile(this[x, y]))
                     {
-                        tilePointLists[this[x, y].TileType].Add(new Point(x, y));
+                        tilePointLists[this[x, y].TileType].Add(new Vector2(x, y));
                     }
                 }
             }
         }
 
-        public List<Point> GetPointsListByType(TileType type)
+        public List<Vector2> GetPointsListByType(TileType type)
         {
             return tilePointLists[type];
         }

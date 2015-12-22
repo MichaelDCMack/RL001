@@ -85,8 +85,8 @@ namespace Code
 
             foreach(Map map in randomizedMaps)
             {
-                List<Point> matchingPoints = FindTileMatchPoints(parentMap, room, map, types);
-                foreach(Point point in matchingPoints)
+                List<Vector2> matchingPoints = FindTileMatchPoints(parentMap, room, map, types);
+                foreach(Vector2 point in matchingPoints)
                 {
                     if(PlaceMapHelper(parentMap, map, point, room))
                     {
@@ -98,7 +98,7 @@ namespace Code
             return false;
         }
 
-        bool PlaceMapHelper(Map parentMap, Map map, Point point, Room room)
+        bool PlaceMapHelper(Map parentMap, Map map, Vector2 point, Room room)
         {
             if(parentMap.CheckStamp(map, point))
             {
@@ -132,9 +132,9 @@ namespace Code
             return false;
         }
 
-        List<Point> FindTileMatchPoints(Map parentMap, Room room, Map map, TileType[] types)
+        List<Vector2> FindTileMatchPoints(Map parentMap, Room room, Map map, TileType[] types)
         {
-            List<Point> roomPoints = new List<Point>();
+            List<Vector2> roomPoints = new List<Vector2>();
 
             for(int i = 0; i < types.Length; ++i)
             {
@@ -144,20 +144,20 @@ namespace Code
             roomPoints.RemoveAll(point => 
                 parentMap.CardinalNeighborCount(point + room.Anchor, TileType.Empty, false) == 0);
 
-            List<Point> mapPoints = new List<Point>();
+            List<Vector2> mapPoints = new List<Vector2>();
 
             for(int i = 0; i < types.Length; ++i)
             {
                 mapPoints.AddRange(map.GetPointsListByType(types[i]));
             }
 
-            List<Point> matchingPoints = new List<Point>();
+            List<Vector2> matchingPoints = new List<Vector2>();
 
-            foreach(Point roomPoint in roomPoints)
+            foreach(Vector2 roomPoint in roomPoints)
             {
-                foreach(Point mapPoint in mapPoints)
+                foreach(Vector2 mapPoint in mapPoints)
                 {
-                    Point point = roomPoint + room.Anchor - mapPoint;
+                    Vector2 point = roomPoint + room.Anchor - mapPoint;
 
                     matchingPoints.Add(point);
                 }
@@ -181,7 +181,7 @@ namespace Code
             map[0, 0].TileType = TileType.Join;
             map.FindLinkPoints();
 
-            PlaceMapHelper(parentMap, map, new Point(x, y), null);
+            PlaceMapHelper(parentMap, map, new Vector2(x, y), null);
 
 
         }
@@ -226,8 +226,8 @@ namespace Code
                     }
                     if(parentMap[x, y].TileType == TileType.Floor)
                     {
-                        if(parentMap.PointIsMapEdge(new Point(x, y)) ||
-                           parentMap.CardinalNeighborCount(new Point(x, y), TileType.Empty, false) > 0)
+                        if(parentMap.PointIsMapEdge(new Vector2(x, y)) ||
+                           parentMap.CardinalNeighborCount(new Vector2(x, y), TileType.Empty, false) > 0)
                         {
                             parentMap[x, y].TileType = TileType.Solid;
                         }
@@ -242,12 +242,12 @@ namespace Code
                 {
                 
                     if(parentMap[x, y].TileType == TileType.Solid &&
-                       parentMap.CardinalNeighborCount(new Point(x, y), TileType.Floor, true) == 0)
+                       parentMap.CardinalNeighborCount(new Vector2(x, y), TileType.Floor, true) == 0)
                     {
                         parentMap[x, y].TileType = TileType.Empty;
                     }
                     if(parentMap[x, y].TileType == TileType.Empty &&
-                       parentMap.CardinalNeighborCount(new Point(x, y), TileType.Floor, true) > 0)
+                       parentMap.CardinalNeighborCount(new Vector2(x, y), TileType.Floor, true) > 0)
                     {
                         parentMap[x, y].TileType = TileType.Solid;
                     }

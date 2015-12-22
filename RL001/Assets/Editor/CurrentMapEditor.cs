@@ -123,7 +123,7 @@ public class CurrentMapEditor : Editor
         {
             Map newMap = new Map(newSizeX, newSizeY);
 
-            newMap.StampMap(cm.map, new Point(0, 0));
+            newMap.StampMap(cm.map, Vector2.zero);
             newMap.FindLinkPoints();
             newMap.BuildPatchRoom();
 

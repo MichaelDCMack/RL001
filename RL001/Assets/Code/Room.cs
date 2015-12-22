@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Code
 {
@@ -22,7 +23,7 @@ namespace Code
             set;
         }
 
-        public Point Anchor
+        public Vector2 Anchor
         {
             get;
             set;
