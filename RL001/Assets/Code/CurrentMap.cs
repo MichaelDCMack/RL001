@@ -16,7 +16,7 @@ namespace Code
         TextAsset oldAsset;
 
         // Use this for initialization
-        void Start()
+        void OnEnable()
         {
             LoadMap();
 
@@ -29,7 +29,6 @@ namespace Code
             {
                 map = new Map();
                 map.ReadGlyphs(asset.text);
-
             }
             else
             {

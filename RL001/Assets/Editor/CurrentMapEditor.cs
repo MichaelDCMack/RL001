@@ -1,20 +1,114 @@
-﻿using Code;
+﻿using System;
+using System.IO;
+using Code;
 using UnityEditor;
 using UnityEngine;
-using System.IO;
 
 [CustomEditor(typeof(CurrentMap))]
 public class CurrentMapEditor : Editor
 {
+    enum PaintMode
+    {
+        Off,
+        On
+    }
+
     int newSizeX;
     int newSizeY;
+    int selectedBrush;
+
+    Texture2D[] croppedTextures;
+    PaintMode paintMode;
+
+    bool IsDelegateRegistered()
+    {
+        if(SceneView.onSceneGUIDelegate != null)
+        {
+            foreach(Delegate d in SceneView.onSceneGUIDelegate.GetInvocationList())
+            {
+                if(d == (SceneView.OnSceneFunc)OnScene)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     void OnEnable()
     {
         CurrentMap cm = (CurrentMap)target;
+        MapRenderer mr = cm.GetComponent<MapRenderer>();
 
-        newSizeX = cm.map.sizeX;
-        newSizeY = cm.map.sizeY;
+        if(cm.map != null)
+        {
+            newSizeX = cm.map.sizeX;
+            newSizeY = cm.map.sizeY;
+        }
+
+        if(!IsDelegateRegistered())
+        {
+            SceneView.onSceneGUIDelegate += OnScene;
+        }
+
+        int numTextures = mr.spriteMapper.tileSpriteMapData.Length;
+        croppedTextures = new Texture2D[numTextures];
+        for(int i = 0; i < numTextures; ++i)
+        {
+            Sprite sprite = mr.spriteMapper.tileSpriteMapData[i].sprite;
+            Color[] pixels = sprite.texture.GetPixels((int)sprite.rect.x, 
+                                 (int)sprite.rect.y, 
+                                 (int)sprite.rect.width, 
+                                 (int)sprite.rect.height);
+
+            croppedTextures[i] = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
+            croppedTextures[i].SetPixels(pixels);
+            croppedTextures[i].Apply();
+        }
+    }
+
+    void OnDisable()
+    {
+        while(IsDelegateRegistered())
+        {
+            SceneView.onSceneGUIDelegate -= OnScene;
+        }
+    }
+
+    void OnScene(SceneView sceneView)
+    {
+        CurrentMap cm = (CurrentMap)target;
+        MapRenderer mr = cm.GetComponent<MapRenderer>();
+
+        if(Event.current.type == EventType.MouseDown)
+        {
+            paintMode = PaintMode.On;
+        }
+
+        if(Event.current.type == EventType.MouseUp)
+        {
+            paintMode = PaintMode.Off;
+        }
+
+        if(Event.current.isMouse)
+        {
+            if(paintMode == PaintMode.On)
+            {
+                Vector2 mousePos = Event.current.mousePosition;
+
+                mousePos.y = Camera.current.pixelHeight - mousePos.y;
+
+                Vector3 position = Camera.current.ScreenToWorldPoint(mousePos);
+                Vector2 mapPos = mr.WorldPosToMapPos(position);
+
+                cm.map[(int)mapPos.x, (int)mapPos.y].TileType = mr.spriteMapper.tileSpriteMapData[selectedBrush].tileTypes[0];
+
+                EditorUtility.SetDirty(target);
+            }
+
+            Event.current.Use();
+        }
     }
 
     public override void OnInspectorGUI()
@@ -23,7 +117,7 @@ public class CurrentMapEditor : Editor
 
         CurrentMap cm = (CurrentMap)target;
 
-        Rect rect = EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.BeginHorizontal();
 
         if(GUILayout.Button("Resize Map"))
         {
@@ -79,6 +173,8 @@ public class CurrentMapEditor : Editor
         {
             EditorApplication.delayCall += SaveCurrentMapToFile;
         }
+
+        selectedBrush = GUILayout.SelectionGrid(selectedBrush, croppedTextures, 5);
     }
 
     public void SaveCurrentMapToFile()

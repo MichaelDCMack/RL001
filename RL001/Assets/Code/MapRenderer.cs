@@ -100,5 +100,15 @@ namespace Code
                 }
             }
         }
+
+        public Vector2 WorldPosToMapPos(Vector3 pos)
+        {
+            Vector2 ret;
+
+            ret.x = pos.x + sizeX / 2.0f;
+            ret.y = pos.y + sizeY / 2.0f;
+
+            return ret;
+        }
     }
 }
