@@ -7,7 +7,7 @@ namespace Code
 {
     public class Map
     {
-        public static char[] DebugGlyphs = new [] {
+        public static char[] DebugGlyphs = {
             ' ',
             '~',
             '.',
@@ -20,7 +20,6 @@ namespace Code
 
         public List<MapType> mapTypes;
 
-        public Dictionary<TileType, List<Vector2>> tilePointLists;
         public List<Room> rooms;
 
         Tile[] tiles;
@@ -44,8 +43,6 @@ namespace Code
             mapTypes = new List<MapType>();
 
             mapTypes.Add(MapType.Default);
-        
-            InitTilePointLists();
         }
 
         public Map(int x, int y)
@@ -63,8 +60,6 @@ namespace Code
             mapTypes = new List<MapType>();
 
             mapTypes.Add(MapType.Default);
-
-            InitTilePointLists();
         }
 
         public Map(Map map)
@@ -76,19 +71,6 @@ namespace Code
         
             rooms = new List<Room>(map.rooms);      
             mapTypes = new List<MapType>(map.mapTypes);
-        
-            InitTilePointLists();
-        }
-
-        // Private
-        void InitTilePointLists()
-        {
-            tilePointLists = new Dictionary<TileType, List<Vector2>>();
-
-            for(TileType i = TileType.Error; i < TileType.NumberOfTypes; ++i)
-            {
-                tilePointLists.Add(i, new List<Vector2>());
-            }
         }
 
         // Public
@@ -311,11 +293,9 @@ namespace Code
         {
             Room room = new Room();
 
-            room.Anchor = Vector2.zero;
             room.DebugColor = Color.green;
-            room.Map = null; //patch map
+            room.Map = this;
             room.ParentMap = this;
-            room.Size = new Vector2(sizeX, sizeY);
 
             rooms.Add(room);
 
@@ -353,27 +333,26 @@ namespace Code
                 }
             }
 
-            room.PatchAnchor = new Vector2(firstX, firstY);
-            room.PatchSize = new Vector2(lastX + 1 - firstX, lastY + 1 - firstY);
-        }
-
-        public void FindLinkPoints()
-        {
-            for(int y = 0; y < sizeY; ++y)
-            {
-                for(int x = 0; x < sizeX; ++x)
-                {
-                    if(TileIsJoinTile(this[x, y]))
-                    {
-                        tilePointLists[this[x, y].TileType].Add(new Vector2(x, y));
-                    }
-                }
-            }
+            room.Anchor = new Vector2(firstX, firstY);
+            room.Size = new Vector2(lastX + 1 - firstX, lastY + 1 - firstY);
         }
 
         public List<Vector2> GetPointsListByType(TileType type)
         {
-            return tilePointLists[type];
+            List<Vector2> points = new List<Vector2>();
+
+            for(int y = 0; y < sizeY; ++y)
+            {
+                for(int x = 0; x < sizeX; ++x)
+                {
+                    if(this[x, y].TileType == type)
+                    {
+                        points.Add(new Vector2(x, y));
+                    }
+                }
+            }
+
+            return points;
         }
 
         public void Clear()
@@ -381,8 +360,7 @@ namespace Code
             for(int y = 0; y < sizeY; ++y)
             {
                 for(int x = 0; x < sizeX; ++x)
-                {
-                
+                {                
                     this[x, y].TileType = TileType.Empty;
                     this[x, y].MaterialType = MaterialType.Dirt;
                 }

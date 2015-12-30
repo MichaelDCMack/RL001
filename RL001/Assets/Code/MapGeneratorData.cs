@@ -64,11 +64,6 @@ namespace Code
                     ++index;
                 }
             }
-
-            foreach(Map map in Maps)
-            {
-                map.FindLinkPoints();
-            }
         }
     }
 }

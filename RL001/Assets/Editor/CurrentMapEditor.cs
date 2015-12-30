@@ -128,7 +128,6 @@ public class CurrentMapEditor : Editor
             Map newMap = new Map(newSizeX, newSizeY);
 
             newMap.StampMap(cm.map, Vector2.zero);
-            newMap.FindLinkPoints();
             newMap.BuildPatchRoom();
 
             cm.map = newMap;

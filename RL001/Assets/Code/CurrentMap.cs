@@ -35,8 +35,6 @@ namespace Code
                 map = new Map(10, 10);
             }
 
-            map.FindLinkPoints();
-
             oldAsset = asset;
         }
 

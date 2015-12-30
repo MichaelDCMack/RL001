@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
-using UnityEditor;
 
 namespace Code
 {
@@ -11,6 +9,8 @@ namespace Code
         public SpriteMapper spriteMapper;
         public int sizeX;
         public int sizeY;
+
+        public bool drawRooms;
 
         int oldSizeX;
         int oldSizeY;
@@ -102,29 +102,18 @@ namespace Code
                 }
             }
 
-            Vector3 offset = new Vector3(-sizeX / 2, -sizeY / 2, 0);
-
-            DrawDebugRectangle(offset,
-                               new Vector3(0, currentMap.map.sizeY, 0) + offset,
-                               new Vector3(currentMap.map.sizeX, currentMap.map.sizeY, 0) + offset,
-                               new Vector3(currentMap.map.sizeX, 0, 0) + offset,
-                               Color.blue);
-
-            foreach(Room room in currentMap.map.rooms)
+            if(drawRooms)
             {
-                if(room.IsPatch)
-                {
-                    Vector3 a = new Vector3(room.PatchAnchor.x, room.PatchAnchor.y, 0) + offset;
-                    Vector3 h = new Vector3(0, room.PatchSize.y, 0);
-                    Vector3 w = new Vector3(room.PatchSize.x, 0, 0);
 
-                    DrawDebugRectangle(a, 
-                                       a + h, 
-                                       a + h + w, 
-                                       a + w, 
-                                       room.DebugColor);
-                }
-                else
+                Vector3 offset = new Vector3(-sizeX / 2, -sizeY / 2, 0);
+
+                DrawDebugRectangle(offset,
+                                   new Vector3(0, currentMap.map.sizeY, 0) + offset,
+                                   new Vector3(currentMap.map.sizeX, currentMap.map.sizeY, 0) + offset,
+                                   new Vector3(currentMap.map.sizeX, 0, 0) + offset,
+                                   Color.blue);
+
+                foreach(Room room in currentMap.map.rooms)
                 {
                     Vector3 a = new Vector3(room.Anchor.x, room.Anchor.y, 0) + offset;
                     Vector3 h = new Vector3(0, room.Size.y, 0);

@@ -139,11 +139,11 @@ namespace Code
 
             for(int i = 0; i < types.Length; ++i)
             {
-                roomPoints.AddRange(room.Map.GetPointsListByType(types[i]));
+                roomPoints.AddRange(room.GetPointsListByType(types[i]));
             }
 
             roomPoints.RemoveAll(point => 
-                parentMap.CardinalNeighborCount(point + room.Anchor, TileType.Empty, false) == 0);
+                parentMap.CardinalNeighborCount(point, TileType.Empty, false) == 0);
 
             List<Vector2> mapPoints = new List<Vector2>();
 
@@ -158,7 +158,7 @@ namespace Code
             {
                 foreach(Vector2 mapPoint in mapPoints)
                 {
-                    Vector2 point = roomPoint + room.Anchor - mapPoint;
+                    Vector2 point = roomPoint - mapPoint;
 
                     matchingPoints.Add(point);
                 }
@@ -180,7 +180,6 @@ namespace Code
             Map map = new Map(1, 1);
 
             map[0, 0].TileType = TileType.Join;
-            map.FindLinkPoints();
 
             PlaceMapHelper(parentMap, map, new Vector2(x, y), null);
 

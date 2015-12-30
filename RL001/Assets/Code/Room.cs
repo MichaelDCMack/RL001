@@ -11,22 +11,10 @@ namespace Code
             protected set;
         }
 
-        Map map;
-
         public Map Map
         {
-            get
-            {
-                if(map != null)
-                {
-                    return map;
-                }
-                else //patch map
-                {
-                    return ParentMap;
-                }
-            }
-            set{ map = value; }
+            get;
+            set;
         }
 
         public Map ParentMap
@@ -53,31 +41,33 @@ namespace Code
             set;
         }
 
-        public Vector2 PatchAnchor
+        public bool ContainsPoint(Vector2 point)
         {
-            get;
-            set;
-        }
-
-        public Vector2 PatchSize
-        {
-            get;
-            set;
-        }
-
-        public bool IsPatch
-        {
-            get
+            if(point.x >= Anchor.x && point.x < Anchor.x + Size.x &&
+               point.y >= Anchor.y && point.y < Anchor.y + Size.y)
             {
-                if(map == null)
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public List<Vector2> GetPointsListByType(TileType type)
+        {
+            List<Vector2> newList = new List<Vector2>();
+            List<Vector2> pointList = ParentMap.GetPointsListByType(type);
+
+            foreach(Vector2 v in pointList)
+            {
+                if(ContainsPoint(v))
                 {
-                    return true;
-                }
-                else
-                {
-                    return false;
+                    newList.Add(v);
                 }
             }
+
+            return newList;
         }
 
         public Room()
