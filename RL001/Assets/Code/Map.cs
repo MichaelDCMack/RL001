@@ -295,7 +295,6 @@ namespace Code
 
             room.DebugColor = Color.green;
             room.Map = this;
-            room.ParentMap = this;
 
             rooms.Add(room);
 

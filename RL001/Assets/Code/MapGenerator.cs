@@ -105,8 +105,7 @@ namespace Code
                 Room newRoom = new Room();
 
                 newRoom.Anchor = point;
-                newRoom.Map = map;
-                newRoom.ParentMap = parentMap;
+                newRoom.Map = parentMap;
                 newRoom.Size = new Vector2(map.sizeX, map.sizeY);
 
                 parentMap.StampMap(map, point);

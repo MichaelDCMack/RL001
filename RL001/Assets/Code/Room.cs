@@ -17,12 +17,6 @@ namespace Code
             set;
         }
 
-        public Map ParentMap
-        {
-            get;
-            set;
-        }
-
         public Vector2 Anchor
         {
             get;
@@ -57,7 +51,7 @@ namespace Code
         public List<Vector2> GetPointsListByType(TileType type)
         {
             List<Vector2> newList = new List<Vector2>();
-            List<Vector2> pointList = ParentMap.GetPointsListByType(type);
+            List<Vector2> pointList = Map.GetPointsListByType(type);
 
             foreach(Vector2 v in pointList)
             {
