@@ -58,9 +58,9 @@ public class CurrentMapEditor : Editor
         {
             Sprite sprite = mr.spriteMapper.tileSpriteMapData[i].sprite;
             Color[] pixels = sprite.texture.GetPixels((int)sprite.rect.x, 
-                                 (int)sprite.rect.y, 
-                                 (int)sprite.rect.width, 
-                                 (int)sprite.rect.height);
+                                                      (int)sprite.rect.y, 
+                                                      (int)sprite.rect.width, 
+                                                      (int)sprite.rect.height);
 
             croppedTextures[i] = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
             croppedTextures[i].SetPixels(pixels);
@@ -102,7 +102,11 @@ public class CurrentMapEditor : Editor
                 Vector3 position = Camera.current.ScreenToWorldPoint(mousePos);
                 Vector2 mapPos = mr.WorldPosToMapPos(position);
 
-                cm.map[(int)mapPos.x, (int)mapPos.y].TileType = mr.spriteMapper.tileSpriteMapData[selectedBrush].tileTypes[0];
+                if(mapPos.x >= 0 && mapPos.x < cm.map.sizeX && mapPos.y >= 0 && mapPos.y < cm.map.sizeY)
+                {
+                    cm.map[(int)mapPos.x, (int)mapPos.y].TileType = 
+                        mr.spriteMapper.tileSpriteMapData[selectedBrush].tileTypes[0];
+                }
 
                 EditorUtility.SetDirty(target);
             }

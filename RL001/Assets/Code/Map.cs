@@ -7,8 +7,7 @@ namespace Code
 {
     public class Map
     {
-        public static char[] DebugGlyphs = new []
-        {
+        public static char[] DebugGlyphs = new [] {
             ' ',
             '~',
             '.',
@@ -311,10 +310,51 @@ namespace Code
         public void BuildPatchRoom()
         {
             Room room = new Room();
+
             room.Anchor = Vector2.zero;
-            room.Map = this;
+            room.DebugColor = Color.green;
+            room.Map = null; //patch map
             room.ParentMap = this;
+            room.Size = new Vector2(sizeX, sizeY);
+
             rooms.Add(room);
+
+            int firstX = -1;
+            int firstY = -1;
+            int lastX = -1;
+            int lastY = -1;
+
+            for(int y = 0; y < sizeY; ++y)
+            {
+                for(int x = 0; x < sizeX; ++x)
+                {
+                    if(this[x, y].TileType != TileType.Empty)
+                    {
+                        if(firstX == -1 || firstX > x)
+                        {
+                            firstX = x;
+                        }
+
+                        if(firstY == -1 || firstY > y)
+                        {
+                            firstY = y;  
+                        }
+
+                        if(lastX < x)
+                        {
+                            lastX = x;
+                        }
+
+                        if(lastY < y)
+                        {
+                            lastY = y;
+                        }
+                    }
+                }
+            }
+
+            room.PatchAnchor = new Vector2(firstX, firstY);
+            room.PatchSize = new Vector2(lastX + 1 - firstX, lastY + 1 - firstY);
         }
 
         public void FindLinkPoints()
