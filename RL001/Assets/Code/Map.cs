@@ -296,8 +296,6 @@ namespace Code
             room.DebugColor = Color.green;
             room.Map = this;
 
-            rooms.Add(room);
-
             int firstX = -1;
             int firstY = -1;
             int lastX = -1;
@@ -332,8 +330,17 @@ namespace Code
                 }
             }
 
+            if(firstX == -1)
+            {
+                firstX = firstY = 0;
+                lastX = sizeX - 1;
+                lastY = sizeY - 1;
+            }
+
             room.Anchor = new Vector2(firstX, firstY);
             room.Size = new Vector2(lastX + 1 - firstX, lastY + 1 - firstY);
+
+            rooms.Add(room);
         }
 
         public List<Vector2> GetPointsListByType(TileType type)

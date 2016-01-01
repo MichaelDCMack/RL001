@@ -29,6 +29,7 @@ namespace Code
             {
                 map = new Map();
                 map.ReadGlyphs(asset.text);
+                map.BuildPatchRoom();
             }
             else
             {

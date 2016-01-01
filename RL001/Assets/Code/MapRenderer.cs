@@ -98,7 +98,7 @@ namespace Code
 
                 if(spriteMapper != null)
                 {
-                    sr.sprite = spriteMapper.MapToSprite(currentMap.map[(int)x, (int)y]);
+                    sr.sprite = spriteMapper.MapToSprite(currentMap.map, (int)x, (int)y);
                 }
             }
 
