@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace Code
 {
-    public class Room
+    public class Region
     {
-        public List<Room> AttachedRooms
+        public List<Region> AttachedRegions
         {
             get;
             protected set;
@@ -64,9 +64,9 @@ namespace Code
             return newList;
         }
 
-        public Room()
+        public Region()
         {
-            AttachedRooms = new List<Room>();
+            AttachedRegions = new List<Region>();
             DebugColor = Color.red;
         }
     }

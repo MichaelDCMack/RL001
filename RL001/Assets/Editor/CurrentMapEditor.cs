@@ -128,7 +128,7 @@ public class CurrentMapEditor : Editor
             Map newMap = new Map(newSizeX, newSizeY);
 
             newMap.StampMap(cm.map, Vector2.zero);
-            newMap.BuildPatchRoom();
+            newMap.BuildPatchRegion();
 
             cm.map = newMap;
             cm.generator.ResetUsedCounts();

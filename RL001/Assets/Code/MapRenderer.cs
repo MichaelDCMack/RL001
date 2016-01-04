@@ -10,7 +10,7 @@ namespace Code
         public int sizeX;
         public int sizeY;
 
-        public bool drawRooms;
+        public bool drawRegions;
 
         int oldSizeX;
         int oldSizeY;
@@ -102,7 +102,7 @@ namespace Code
                 }
             }
 
-            if(drawRooms)
+            if(drawRegions)
             {
 
                 Vector3 offset = new Vector3(-sizeX / 2, -sizeY / 2, 0);
@@ -113,17 +113,17 @@ namespace Code
                                    new Vector3(currentMap.map.sizeX, 0, 0) + offset,
                                    Color.blue);
 
-                foreach(Room room in currentMap.map.rooms)
+                foreach(Region region in currentMap.map.regions)
                 {
-                    Vector3 a = new Vector3(room.Anchor.x, room.Anchor.y, 0) + offset;
-                    Vector3 h = new Vector3(0, room.Size.y, 0);
-                    Vector3 w = new Vector3(room.Size.x, 0, 0);
+                    Vector3 a = new Vector3(region.Anchor.x, region.Anchor.y, 0) + offset;
+                    Vector3 h = new Vector3(0, region.Size.y, 0);
+                    Vector3 w = new Vector3(region.Size.x, 0, 0);
 
                     DrawDebugRectangle(a, 
                                        a + h, 
                                        a + h + w, 
                                        a + w, 
-                                       room.DebugColor);
+                                       region.DebugColor);
                 }
             }
         }

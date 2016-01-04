@@ -79,16 +79,16 @@ namespace Code
             return null;
         }
 
-        bool PlaceMap(Map parentMap, Room room, TileType[] types)
+        bool PlaceMap(Map parentMap, Region region, TileType[] types)
         {
             List<Map> randomizedMaps = GetRandomMaps();
 
             foreach(Map map in randomizedMaps)
             {
-                List<Vector2> matchingPoints = FindTileMatchPoints(parentMap, room, map, types);
+                List<Vector2> matchingPoints = FindTileMatchPoints(parentMap, region, map, types);
                 foreach(Vector2 point in matchingPoints)
                 {
-                    if(PlaceMapHelper(parentMap, map, point, room))
+                    if(PlaceMapHelper(parentMap, map, point, region))
                     {
                         return true;
                     }
@@ -98,23 +98,23 @@ namespace Code
             return false;
         }
 
-        bool PlaceMapHelper(Map parentMap, Map map, Vector2 point, Room room)
+        bool PlaceMapHelper(Map parentMap, Map map, Vector2 point, Region region)
         {
             if(parentMap.CheckStamp(map, point))
             {
-                Room newRoom = new Room();
+                Region newRegion = new Region();
 
-                newRoom.Anchor = point;
-                newRoom.Map = parentMap;
-                newRoom.Size = new Vector2(map.sizeX, map.sizeY);
+                newRegion.Anchor = point;
+                newRegion.Map = parentMap;
+                newRegion.Size = new Vector2(map.sizeX, map.sizeY);
 
                 parentMap.StampMap(map, point);
-                parentMap.rooms.Add(newRoom);
+                parentMap.regions.Add(newRegion);
 
-                if(room != null)
+                if(region != null)
                 {
-                    newRoom.AttachedRooms.Add(room);
-                    room.AttachedRooms.Add(newRoom);
+                    newRegion.AttachedRegions.Add(region);
+                    region.AttachedRegions.Add(newRegion);
                 }
 
                 foreach(MapGeneratorData mapData in mapDataArray)
@@ -132,16 +132,16 @@ namespace Code
             return false;
         }
 
-        List<Vector2> FindTileMatchPoints(Map parentMap, Room room, Map map, TileType[] types)
+        List<Vector2> FindTileMatchPoints(Map parentMap, Region region, Map map, TileType[] types)
         {
-            List<Vector2> roomPoints = new List<Vector2>();
+            List<Vector2> regionPoints = new List<Vector2>();
 
             for(int i = 0; i < types.Length; ++i)
             {
-                roomPoints.AddRange(room.GetPointsListByType(types[i]));
+                regionPoints.AddRange(region.GetPointsListByType(types[i]));
             }
 
-            roomPoints.RemoveAll(point => 
+            regionPoints.RemoveAll(point => 
                 parentMap.CardinalNeighborCount(point, TileType.Empty, false) == 0);
 
             List<Vector2> mapPoints = new List<Vector2>();
@@ -153,11 +153,11 @@ namespace Code
 
             List<Vector2> matchingPoints = new List<Vector2>();
 
-            foreach(Vector2 roomPoint in roomPoints)
+            foreach(Vector2 regionPoint in regionPoints)
             {
                 foreach(Vector2 mapPoint in mapPoints)
                 {
-                    Vector2 point = roomPoint - mapPoint;
+                    Vector2 point = regionPoint - mapPoint;
 
                     matchingPoints.Add(point);
                 }
@@ -187,23 +187,23 @@ namespace Code
 
         public void BuildNextRandomSubMap(Map parentMap)
         {   
-            List<Room> rooms = new List<Room>(parentMap.rooms);
+            List<Region> regions = new List<Region>(parentMap.regions);
 
             switch(mode)
             {
                 case GenerateMode.BreadthFirst:
                     break;
                 case GenerateMode.DepthFirst:
-                    rooms.Reverse();
+                    regions.Reverse();
                     break;
                 case GenerateMode.Random:
-                    rooms.Shuffle();
+                    regions.Shuffle();
                     break;
             }
 
-            foreach(Room room in rooms)
+            foreach(Region region in regions)
             {
-                if(PlaceMap(parentMap, room, new []{ TileType.Join }))
+                if(PlaceMap(parentMap, region, new []{ TileType.Join }))
                 {
                     return;
                 }

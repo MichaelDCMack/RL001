@@ -20,7 +20,7 @@ namespace Code
 
         public List<MapType> mapTypes;
 
-        public List<Room> rooms;
+        public List<Region> regions;
 
         Tile[] tiles;
 
@@ -39,7 +39,7 @@ namespace Code
                 tiles[i] = new Tile();
             }
         
-            rooms = new List<Room>();
+            regions = new List<Region>();
             mapTypes = new List<MapType>();
 
             mapTypes.Add(MapType.Default);
@@ -56,7 +56,7 @@ namespace Code
                 tiles[i] = new Tile();
             }
         
-            rooms = new List<Room>();
+            regions = new List<Region>();
             mapTypes = new List<MapType>();
 
             mapTypes.Add(MapType.Default);
@@ -69,7 +69,7 @@ namespace Code
         
             tiles = (Tile[])map.tiles.Clone();
         
-            rooms = new List<Room>(map.rooms);      
+            regions = new List<Region>(map.regions);      
             mapTypes = new List<MapType>(map.mapTypes);
         }
 
@@ -289,12 +289,12 @@ namespace Code
             }
         }
 
-        public void BuildPatchRoom()
+        public void BuildPatchRegion()
         {
-            Room room = new Room();
+            Region region = new Region();
 
-            room.DebugColor = Color.green;
-            room.Map = this;
+            region.DebugColor = Color.green;
+            region.Map = this;
 
             int firstX = -1;
             int firstY = -1;
@@ -337,10 +337,10 @@ namespace Code
                 lastY = sizeY - 1;
             }
 
-            room.Anchor = new Vector2(firstX, firstY);
-            room.Size = new Vector2(lastX + 1 - firstX, lastY + 1 - firstY);
+            region.Anchor = new Vector2(firstX, firstY);
+            region.Size = new Vector2(lastX + 1 - firstX, lastY + 1 - firstY);
 
-            rooms.Add(room);
+            regions.Add(region);
         }
 
         public List<Vector2> GetPointsListByType(TileType type)
@@ -372,7 +372,7 @@ namespace Code
                 }
             }
 
-            rooms.Clear();
+            regions.Clear();
         }
     }
 }
