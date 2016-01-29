@@ -105,17 +105,10 @@ namespace Code
                 Region newRegion = new Region();
 
                 newRegion.Anchor = point;
-                newRegion.Map = parentMap;
-                newRegion.Size = new Vector2(map.sizeX, map.sizeY);
+                newRegion.Size = new Vector2(map.size.x, map.size.y);
 
                 parentMap.StampMap(map, point);
-                parentMap.regions.Add(newRegion);
-
-                if(region != null)
-                {
-                    newRegion.AttachedRegions.Add(region);
-                    region.AttachedRegions.Add(newRegion);
-                }
+                parentMap.regions.Add(newRegion); //TODO investigate this.
 
                 foreach(MapGeneratorData mapData in mapDataArray)
                 {
@@ -138,7 +131,7 @@ namespace Code
 
             for(int i = 0; i < types.Length; ++i)
             {
-                regionPoints.AddRange(region.GetPointsListByType(types[i]));
+                regionPoints.AddRange(region.GetPointsListByType(parentMap, types[i]));
             }
 
             regionPoints.RemoveAll(point => 
@@ -173,8 +166,8 @@ namespace Code
         // Public
         public void BuildRandomJoinTile(Map parentMap)
         {
-            int x = UnityEngine.Random.Range(0, parentMap.sizeX);
-            int y = UnityEngine.Random.Range(0, parentMap.sizeY);
+            int x = UnityEngine.Random.Range(0, (int)parentMap.size.x);
+            int y = UnityEngine.Random.Range(0, (int)parentMap.size.y);
 
             Map map = new Map(1, 1);
 
@@ -214,9 +207,9 @@ namespace Code
         public void PostProcessMap(Map parentMap)
         {
             //first pass
-            for(int y = 0; y < parentMap.sizeY; ++y)
+            for(int y = 0; y < parentMap.size.y; ++y)
             {
-                for(int x = 0; x < parentMap.sizeX; ++x)
+                for(int x = 0; x < parentMap.size.x; ++x)
                 {                
                 
                     if(parentMap[x, y].TileType == TileType.Join)
@@ -235,9 +228,9 @@ namespace Code
             }
 
             //second pass
-            for(int y = 0; y < parentMap.sizeY; ++y)
+            for(int y = 0; y < parentMap.size.y; ++y)
             {
-                for(int x = 0; x < parentMap.sizeX; ++x)
+                for(int x = 0; x < parentMap.size.x; ++x)
                 {
                 
                     if(parentMap[x, y].TileType == TileType.Solid &&

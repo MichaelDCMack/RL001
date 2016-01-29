@@ -14,9 +14,8 @@ namespace Code
             '#',
             'J',
         };
-        
-        public int sizeX = 100;
-        public int sizeY = 100;
+
+        public Vector2 size;
 
         public List<MapType> mapTypes;
 
@@ -26,15 +25,15 @@ namespace Code
 
         public Tile this[int x, int y]
         {
-            get{ return tiles[y * sizeX + x]; }
-            set{ tiles[y * sizeX + x] = value; }
+            get{ return tiles[y * (int)size.x + x]; }
+            set{ tiles[y * (int)size.x + x] = value; }
         }
 
         // Init
         public Map()
         {
-            tiles = new Tile[sizeX * sizeY];
-            for(int i = 0; i < sizeX * sizeY; ++i)
+            tiles = new Tile[(int)size.x * (int)size.y];
+            for(int i = 0; i < (int)size.x * (int)size.y; ++i)
             {
                 tiles[i] = new Tile();
             }
@@ -47,11 +46,11 @@ namespace Code
 
         public Map(int x, int y)
         {
-            sizeX = x;
-            sizeY = y;
+            size.x = x;
+            size.y = y;
         
-            tiles = new Tile[sizeX * sizeY];
-            for(int i = 0; i < sizeX * sizeY; ++i)
+            tiles = new Tile[(int)size.x * (int)size.y];
+            for(int i = 0; i < (int)size.x * (int)size.y; ++i)
             {
                 tiles[i] = new Tile();
             }
@@ -64,12 +63,12 @@ namespace Code
 
         public Map(Map map)
         {
-            sizeX = map.sizeX;
-            sizeY = map.sizeY;
+            size.x = map.size.x;
+            size.y = map.size.y;
         
             tiles = (Tile[])map.tiles.Clone();
         
-            regions = new List<Region>(map.regions);      
+            regions = new List<Region>(map.regions);  //TODO investigate this    
             mapTypes = new List<MapType>(map.mapTypes);
         }
 
@@ -77,24 +76,35 @@ namespace Code
         public void ReadGlyphs(string text)
         {
             StringReader sr = new StringReader(text);
-            string sizeXString = sr.ReadLine();
-            string sizeYString = sr.ReadLine();
+            size = sr.ReadLine().ParseToVector2();
         
-            sizeX = int.Parse(sizeXString);
-            sizeY = int.Parse(sizeYString);
+            tiles = new Tile[(int)size.x * (int)size.y];
         
-            tiles = new Tile[sizeX * sizeY];
-        
-            for(int y = 0; y < sizeY; ++y)
+            for(int y = 0; y < (int)size.y; ++y)
             {
                 char[] glyphsArray = sr.ReadLine().ToCharArray();
-                for(int x = 0; x < sizeX; ++x)
+                for(int x = 0; x < (int)size.x; ++x)
                 {
                     this[x, y] = new Tile();
                     this[x, y].TileType = (TileType)Array.FindIndex(DebugGlyphs, g => g == glyphsArray[x]);
                 }
             }
-        
+
+            string regionCountString = sr.ReadLine();
+            int regionCount = int.Parse(regionCountString);
+
+            for(int i = 0; i < regionCount; ++i)
+            {
+                Region r = new Region();
+
+                r.Anchor = sr.ReadLine().ParseToVector2();
+                r.DebugColor = sr.ReadLine().ParseToColor();
+                r.Name = sr.ReadLine();
+                r.Size = sr.ReadLine().ParseToVector2();
+
+                regions.Add(r);
+            }
+
             sr.Close();
         }
 
@@ -102,15 +112,28 @@ namespace Code
         {
             StringWriter sw = new StringWriter();
 
-            sw.WriteLine(sizeX);
-            sw.WriteLine(sizeY);
+            sw.WriteLine(size);
 
-            for(int y = 0; y < sizeY; ++y)
+            for(int y = 0; y < (int)size.y; ++y)
             {
-                for(int x = 0; x < sizeX; ++x)
+                for(int x = 0; x < (int)size.x; ++x)
                 {
                     sw.Write(DebugGlyphs[(int)this[x, y].TileType]);
                 }
+                sw.Write('\n');
+            }
+
+            sw.WriteLine(regions.Count);
+
+            foreach(Region r in regions)
+            {
+                sw.Write(r.Anchor);
+                sw.Write('\n');
+                sw.Write(r.DebugColor);
+                sw.Write('\n');
+                sw.Write(r.Name);
+                sw.Write('\n');
+                sw.Write(r.Size);
                 sw.Write('\n');
             }
 
@@ -121,8 +144,8 @@ namespace Code
 
         public bool CheckStamp(Map subMap, Vector2 offset)
         {
-            if(offset.x + subMap.sizeX > sizeX ||
-               offset.y + subMap.sizeY > sizeY ||
+            if(offset.x + subMap.size.x > size.x ||
+               offset.y + subMap.size.y > size.y ||
                offset.x < 0 ||
                offset.y < 0)
             {
@@ -134,9 +157,9 @@ namespace Code
                 return false;
             }
 
-            for(int y = 0; y < subMap.sizeY; ++y)
+            for(int y = 0; y < (int)subMap.size.y; ++y)
             {
-                for(int x = 0; x < subMap.sizeX; ++x)
+                for(int x = 0; x < (int)subMap.size.x; ++x)
                 {
                     Tile mapTile = this[x + (int)offset.x, y + (int)offset.y];
                     Tile subMapTile = subMap[x, y];
@@ -155,9 +178,9 @@ namespace Code
         {
             bool allEmpty = true;
 
-            for(int y = 0; y < subMap.sizeY; ++y)
+            for(int y = 0; y < subMap.size.y; ++y)
             {
-                for(int x = 0; x < subMap.sizeX; ++x)
+                for(int x = 0; x < subMap.size.x; ++x)
                 {
                     TileType mapTileType = this[x + (int)offset.x, y + (int)offset.y].TileType;
                     TileType subMapTileType = subMap[x, y].TileType;
@@ -200,15 +223,31 @@ namespace Code
             return t1.TileType == TileType.Empty ? t2 : t1;
         }
 
-        public void StampMap(Map map, Vector2 offset)
+        public void StampMap(Map map, Vector2 offset, bool includeRegions = true)
         {
-            for(int y = 0; y < map.sizeY; ++y)
+            for(int y = 0; y < map.size.y; ++y)
             {
-                for(int x = 0; x < map.sizeX; ++x)
+                for(int x = 0; x < map.size.x; ++x)
                 {
-                    if(x < sizeX && y < sizeY)
+                    if(x < size.x && y < size.y)
                     {
                         this[x + (int)offset.x, y + (int)offset.y].Set(CombineTiles(this[x + (int)offset.x, y + (int)offset.y], map[x, y]));
+                    }
+                }
+            }
+
+            if(includeRegions)
+            {
+                foreach(Region region in map.regions)
+                {
+                    Region newRegion = new Region(region);
+
+                    newRegion.Anchor += offset;
+                    newRegion.ConformToMap(this);
+
+                    if(newRegion.Size.x > 0 && newRegion.Size.y > 0)
+                    {
+                        regions.Add(newRegion);
                     }
                 }
             }
@@ -220,11 +259,11 @@ namespace Code
 
             if(location.x > 0 && this[(int)location.x - 1, (int)location.y].TileType == type)
                 ++count;
-            if(location.x + 1 < sizeX && this[(int)location.x + 1, (int)location.y].TileType == type)
+            if(location.x + 1 < size.x && this[(int)location.x + 1, (int)location.y].TileType == type)
                 ++count;
             if(location.y > 0 && this[(int)location.x, (int)location.y - 1].TileType == type)
                 ++count;
-            if(location.y + 1 < sizeY && this[(int)location.x, (int)location.y + 1].TileType == type)
+            if(location.y + 1 < size.y && this[(int)location.x, (int)location.y + 1].TileType == type)
                 ++count;
 
             if(interCardinal)
@@ -232,13 +271,13 @@ namespace Code
                 if(location.x > 0 && location.y > 0 &&
                    this[(int)location.x - 1, (int)location.y - 1].TileType == type)
                     ++count;
-                if(location.x + 1 < sizeX && location.y + 1 < sizeY &&
+                if(location.x + 1 < size.x && location.y + 1 < size.y &&
                    this[(int)location.x + 1, (int)location.y + 1].TileType == type)
                     ++count;
-                if(location.x + 1 < sizeX && location.y > 0 &&
+                if(location.x + 1 < size.x && location.y > 0 &&
                    this[(int)location.x + 1, (int)location.y - 1].TileType == type)
                     ++count;
-                if(location.x > 0 && location.y + 1 < sizeY &&
+                if(location.x > 0 && location.y + 1 < size.y &&
                    this[(int)location.x - 1, (int)location.y + 1].TileType == type)
                     ++count;
             }
@@ -248,8 +287,8 @@ namespace Code
 
         public bool PointIsMapEdge(Vector2 location)
         {
-            if(location.x + 1 >= sizeX || location.x <= 0 ||
-               location.y + 1 >= sizeY || location.y <= 0)
+            if(location.x + 1 >= size.x || location.x <= 0 ||
+               location.y + 1 >= size.y || location.y <= 0)
             {
                 return true;
             }
@@ -259,32 +298,32 @@ namespace Code
 
         public void Rotate()
         {
-            int newSizeX = sizeY;
-            int newSizeY = sizeX;
+            int newSizeX = (int)size.y;
+            int newSizeY = (int)size.x;
             Tile[] newTiles = new Tile[newSizeX * newSizeY];
 
             for(int y = 0; y < newSizeY; ++y)
             {
                 for(int x = 0; x < newSizeX; ++x)
                 {
-                    newTiles[y * newSizeX + x] = this[(sizeX - 1) - y, x];
+                    newTiles[y * newSizeX + x] = this[((int)size.x - 1) - y, x];
                 }
             }
         
-            sizeX = newSizeX;
-            sizeY = newSizeY;
+            size.x = newSizeX;
+            size.y = newSizeY;
             tiles = newTiles;
         }
 
         public void Mirror()
         {
-            for(int y = 0; y < sizeY; ++y)
+            for(int y = 0; y < size.y; ++y)
             {
-                for(int x = 0; x < sizeX / 2; ++x)
+                for(int x = 0; x < size.x / 2; ++x)
                 {
                     Tile temp = this[x, y];
-                    this[x, y] = this[(sizeX - 1) - x, y];
-                    this[(sizeX - 1) - x, y] = temp;
+                    this[x, y] = this[((int)size.x - 1) - x, y];
+                    this[((int)size.x - 1) - x, y] = temp;
                 }
             }
         }
@@ -294,16 +333,15 @@ namespace Code
             Region region = new Region();
 
             region.DebugColor = Color.green;
-            region.Map = this;
 
             int firstX = -1;
             int firstY = -1;
             int lastX = -1;
             int lastY = -1;
 
-            for(int y = 0; y < sizeY; ++y)
+            for(int y = 0; y < size.y; ++y)
             {
-                for(int x = 0; x < sizeX; ++x)
+                for(int x = 0; x < size.x; ++x)
                 {
                     if(this[x, y].TileType != TileType.Empty)
                     {
@@ -333,8 +371,8 @@ namespace Code
             if(firstX == -1)
             {
                 firstX = firstY = 0;
-                lastX = sizeX - 1;
-                lastY = sizeY - 1;
+                lastX = (int)size.x - 1;
+                lastY = (int)size.y - 1;
             }
 
             region.Anchor = new Vector2(firstX, firstY);
@@ -347,9 +385,9 @@ namespace Code
         {
             List<Vector2> points = new List<Vector2>();
 
-            for(int y = 0; y < sizeY; ++y)
+            for(int y = 0; y < size.y; ++y)
             {
-                for(int x = 0; x < sizeX; ++x)
+                for(int x = 0; x < size.x; ++x)
                 {
                     if(this[x, y].TileType == type)
                     {
@@ -363,9 +401,9 @@ namespace Code
 
         public void Clear()
         {
-            for(int y = 0; y < sizeY; ++y)
+            for(int y = 0; y < size.y; ++y)
             {
-                for(int x = 0; x < sizeX; ++x)
+                for(int x = 0; x < size.x; ++x)
                 {                
                     this[x, y].TileType = TileType.Empty;
                     this[x, y].MaterialType = MaterialType.Dirt;

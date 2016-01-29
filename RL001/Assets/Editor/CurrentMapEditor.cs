@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using Code;
 using UnityEditor;
 using UnityEngine;
+using Code;
 
 [CustomEditor(typeof(CurrentMap))]
 public class CurrentMapEditor : Editor
@@ -43,8 +43,8 @@ public class CurrentMapEditor : Editor
 
         if(cm.map != null)
         {
-            newSizeX = cm.map.sizeX;
-            newSizeY = cm.map.sizeY;
+            newSizeX = (int)cm.map.size.x;
+            newSizeY = (int)cm.map.size.y;
         }
 
         if(!IsDelegateRegistered())
@@ -102,7 +102,7 @@ public class CurrentMapEditor : Editor
                 Vector3 position = Camera.current.ScreenToWorldPoint(mousePos);
                 Vector2 mapPos = mr.WorldPosToMapPos(position);
 
-                if(mapPos.x >= 0 && mapPos.x < cm.map.sizeX && mapPos.y >= 0 && mapPos.y < cm.map.sizeY)
+                if(mapPos.x >= 0 && mapPos.x < cm.map.size.x && mapPos.y >= 0 && mapPos.y < cm.map.size.y)
                 {
                     cm.map[(int)mapPos.x, (int)mapPos.y].TileType = 
                         mr.spriteMapper.tileSpriteMapData[selectedBrush].tileTypes[0];
@@ -128,7 +128,7 @@ public class CurrentMapEditor : Editor
             Map newMap = new Map(newSizeX, newSizeY);
 
             newMap.StampMap(cm.map, Vector2.zero);
-            newMap.BuildPatchRegion();
+            //TODO: Copy over and possibly resize regions from old map
 
             cm.map = newMap;
             cm.generator.ResetUsedCounts();

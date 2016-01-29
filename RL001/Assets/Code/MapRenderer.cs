@@ -84,13 +84,13 @@ namespace Code
 
                 SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
 
-                if(x < 0 || x >= currentMap.map.sizeX)
+                if(x < 0 || x >= currentMap.map.size.x)
                 {
                     sr.sprite = null;
                     continue;
                 }
 
-                if(y < 0 || y >= currentMap.map.sizeY)
+                if(y < 0 || y >= currentMap.map.size.y)
                 {
                     sr.sprite = null;
                     continue;
@@ -108,9 +108,9 @@ namespace Code
                 Vector3 offset = new Vector3(-sizeX / 2, -sizeY / 2, 0);
 
                 DrawDebugRectangle(offset,
-                                   new Vector3(0, currentMap.map.sizeY, 0) + offset,
-                                   new Vector3(currentMap.map.sizeX, currentMap.map.sizeY, 0) + offset,
-                                   new Vector3(currentMap.map.sizeX, 0, 0) + offset,
+                                   new Vector3(0, currentMap.map.size.y, 0) + offset,
+                                   new Vector3(currentMap.map.size.x, currentMap.map.size.y, 0) + offset,
+                                   new Vector3(currentMap.map.size.x, 0, 0) + offset,
                                    Color.blue);
 
                 foreach(Region region in currentMap.map.regions)
